@@ -16,17 +16,19 @@ import android.widget.TextView;
 
 import static android.support.v7.widget.RecyclerView.OnScrollListener;
 
+/**
+ * Created by quybro on 5/6/16.
+ */
 public class BubbleScroller extends LinearLayout {
     private static final int BUBBLE_ANIMATION_DURATION = 100;
     private static final int TRACK_SNAP_RANGE = 5;
 
-    private TextView scrollbarBubble;
-    private View scrollbarThumb;
-    private RecyclerView recyclerView;
-    private final ScrollListener scrollListener = new ScrollListener();
-    private int height;
-
-    private ObjectAnimator currentAnimator = null;
+    private RecyclerView mRecyclerView;
+    private final ScrollListener mScrollListener = new ScrollListener();
+    private ObjectAnimator mCurrentAnimator = null;
+    private TextView mScrollbarBubble;
+    private View mScrollbarThumb;
+    private int mHeight;
 
     public BubbleScroller(final Context context, final AttributeSet attrs, final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
@@ -48,15 +50,15 @@ public class BubbleScroller extends LinearLayout {
         setClipChildren(false);
         LayoutInflater inflater = LayoutInflater.from(context);
         inflater.inflate(R.layout.bubble_thumb, this, true);
-        scrollbarBubble = (TextView) findViewById(R.id.bubble);
-        scrollbarThumb = findViewById(R.id.thumb);
-        scrollbarBubble.setVisibility(INVISIBLE);
+        mScrollbarBubble = (TextView) findViewById(R.id.bubble);
+        mScrollbarThumb = findViewById(R.id.thumb);
+        mScrollbarBubble.setVisibility(INVISIBLE);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        height = h;
+        mHeight = h;
     }
 
     @Override
@@ -64,13 +66,16 @@ public class BubbleScroller extends LinearLayout {
         final int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                if (event.getX() < scrollbarThumb.getX())
+                if (event.getX() < mScrollbarThumb.getX()) {
                     return false;
-                if (currentAnimator != null)
-                    currentAnimator.cancel();
-                if (scrollbarBubble.getVisibility() == INVISIBLE)
+                }
+                if (mCurrentAnimator != null) {
+                    mCurrentAnimator.cancel();
+                }
+                if (mScrollbarBubble.getVisibility() == INVISIBLE) {
                     showBubble();
-                scrollbarThumb.setSelected(true);
+                }
+                mScrollbarThumb.setSelected(true);
             case MotionEvent.ACTION_MOVE:
                 final float y = event.getY();
                 setBubbleAndHandlePosition(y);
@@ -78,35 +83,35 @@ public class BubbleScroller extends LinearLayout {
                 return true;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                scrollbarThumb.setSelected(false);
+                mScrollbarThumb.setSelected(false);
                 hideBubble();
                 return true;
         }
         return super.onTouchEvent(event);
     }
 
-    public void setRecyclerView(RecyclerView recyclerView) {
-        this.recyclerView = recyclerView;
-        recyclerView.addOnScrollListener(scrollListener);
+    public void setRecyclerView(RecyclerView mRecyclerView) {
+        this.mRecyclerView = mRecyclerView;
+        mRecyclerView.addOnScrollListener(mScrollListener);
     }
 
     private void setRecyclerViewPosition(float y) {
-        if (recyclerView != null) {
-            int itemCount = recyclerView.getAdapter().getItemCount();
+        if (mRecyclerView != null) {
+            int itemCount = mRecyclerView.getAdapter().getItemCount();
             float proportion;
-            if (scrollbarThumb.getY() == 0) {
+            if (mScrollbarThumb.getY() == 0) {
                 proportion = 0f;
             }
-            else if (scrollbarThumb.getY() + scrollbarThumb.getHeight() >= height - TRACK_SNAP_RANGE) {
+            else if (mScrollbarThumb.getY() + mScrollbarThumb.getHeight() >= mHeight - TRACK_SNAP_RANGE) {
                 proportion = 1f;
             }
             else {
-                proportion = y / (float) height;
+                proportion = y / (float) mHeight;
             }
             int targetPos = getValueInRange(0, itemCount - 1, (int) (proportion * (float) itemCount));
-            ((LinearLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(targetPos, 0);
-            String bubbleText = ((BubbleTextGetter) recyclerView.getAdapter()).getTextToShowInBubble(targetPos);
-            scrollbarBubble.setText(bubbleText);
+            ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(targetPos, 0);
+            String bubbleText = ((BubbleTextGetter) mRecyclerView.getAdapter()).getTextToShowInBubble(targetPos);
+            mScrollbarBubble.setText(bubbleText);
         }
     }
 
@@ -116,56 +121,55 @@ public class BubbleScroller extends LinearLayout {
     }
 
     private void setBubbleAndHandlePosition(float y) {
-        int bubbleHeight = scrollbarBubble.getHeight();
-        int handleHeight = scrollbarThumb.getHeight();
-        scrollbarThumb.setY(getValueInRange(0, height - handleHeight, (int) (y - handleHeight / 2)));
-        scrollbarBubble.setY(getValueInRange(0, height - bubbleHeight - handleHeight / 2, (int) (y - bubbleHeight)));
+        int bubbleHeight = mScrollbarBubble.getHeight();
+        int handleHeight = mScrollbarThumb.getHeight();
+        mScrollbarThumb.setY(getValueInRange(0, mHeight - handleHeight, (int) (y - handleHeight / 2)));
+        mScrollbarBubble.setY(getValueInRange(0, mHeight - bubbleHeight - handleHeight / 2, (int) (y - bubbleHeight)));
     }
 
     private void showBubble() {
-        scrollbarBubble.setVisibility(VISIBLE);
-        if (currentAnimator != null) {
-            currentAnimator.cancel();
+        mScrollbarBubble.setVisibility(VISIBLE);
+        if (mCurrentAnimator != null) {
+            mCurrentAnimator.cancel();
         }
-        currentAnimator = ObjectAnimator.ofFloat(scrollbarBubble, "alpha", 0f, 1f).setDuration(BUBBLE_ANIMATION_DURATION);
-        currentAnimator.start();
+        mCurrentAnimator = ObjectAnimator.ofFloat(mScrollbarBubble, "alpha", 0f, 1f).setDuration(BUBBLE_ANIMATION_DURATION);
+        mCurrentAnimator.start();
     }
 
     private void hideBubble() {
-        if (currentAnimator != null) {
-            currentAnimator.cancel();
+        if (mCurrentAnimator != null) {
+            mCurrentAnimator.cancel();
         }
-        currentAnimator = ObjectAnimator.ofFloat(scrollbarBubble, "alpha", 1f, 0f).setDuration(BUBBLE_ANIMATION_DURATION);
-        currentAnimator.addListener(new AnimatorListenerAdapter() {
+        mCurrentAnimator = ObjectAnimator.ofFloat(mScrollbarBubble, "alpha", 1f, 0f).setDuration(BUBBLE_ANIMATION_DURATION);
+        mCurrentAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                scrollbarBubble.setVisibility(INVISIBLE);
-                currentAnimator = null;
+                mScrollbarBubble.setVisibility(INVISIBLE);
+                mCurrentAnimator = null;
             }
 
             @Override
             public void onAnimationCancel(Animator animation) {
                 super.onAnimationCancel(animation);
-                scrollbarBubble.setVisibility(INVISIBLE);
-                currentAnimator = null;
+                mScrollbarBubble.setVisibility(INVISIBLE);
+                mCurrentAnimator = null;
             }
         });
-        currentAnimator.start();
+        mCurrentAnimator.start();
     }
 
     private class ScrollListener extends OnScrollListener {
         @Override
         public void onScrolled(RecyclerView rv, int dx, int dy) {
-
-            if (scrollbarThumb.isSelected()) {
+            if (mScrollbarThumb.isSelected()) {
                 return;
             }
-            View firstVisibleView = recyclerView.getChildAt(0);
-            int firstVisiblePosition = recyclerView.getChildLayoutPosition(firstVisibleView);
-            int visibleRange = recyclerView.getChildCount();
+            View firstVisibleView = mRecyclerView.getChildAt(0);
+            int firstVisiblePosition = mRecyclerView.getChildLayoutPosition(firstVisibleView);
+            int visibleRange = mRecyclerView.getChildCount();
             int lastVisiblePosition = firstVisiblePosition + visibleRange;
-            int itemCount = recyclerView.getAdapter().getItemCount();
+            int itemCount = mRecyclerView.getAdapter().getItemCount();
             int position;
             if (firstVisiblePosition == 0) {
                 position = 0;
@@ -177,7 +181,7 @@ public class BubbleScroller extends LinearLayout {
                 position = (int) (((float) firstVisiblePosition / (((float) itemCount - (float) visibleRange))) * (float) itemCount);
             }
             float proportion = (float) position / (float) itemCount;
-            setBubbleAndHandlePosition(height * proportion);
+            setBubbleAndHandlePosition(mHeight * proportion);
         }
     }
 

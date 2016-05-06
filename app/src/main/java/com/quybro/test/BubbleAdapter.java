@@ -7,13 +7,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.quybro.bubble_scroller_lib.BubbleScroller;
+import com.quybro.bubble_scroller_lib.BubbleScrollerAdapter;
 
 import java.util.ArrayList;
 
 /**
  * Created by quybro on 5/3/16.
  */
-public class BubbleAdapter extends RecyclerView.Adapter<BubbleAdapter.ItemHolder> implements BubbleScroller.BubbleTextGetter {
+public class BubbleAdapter extends BubbleScrollerAdapter<BubbleAdapter.ItemHolder>{
     private final String mPattern = "ThequickbrownfoxjumpsoverthelazydogThequickbrownfoxjumpsoverthelazydog";
     private ArrayList<String> mNames = new ArrayList<>();
     public BubbleAdapter(){

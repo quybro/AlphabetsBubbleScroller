@@ -110,7 +110,7 @@ public class BubbleScroller extends LinearLayout {
             }
             int targetPos = getValueInRange(0, itemCount - 1, (int) (proportion * (float) itemCount));
             ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(targetPos, 0);
-            String bubbleText = ((BubbleTextGetter) mRecyclerView.getAdapter()).getTextToShowInBubble(targetPos);
+            String bubbleText = ((TextGetter) mRecyclerView.getAdapter()).getText(targetPos);
             mScrollbarBubble.setText(bubbleText);
         }
     }
@@ -166,26 +166,26 @@ public class BubbleScroller extends LinearLayout {
                 return;
             }
             View firstVisibleView = mRecyclerView.getChildAt(0);
-            int firstVisiblePosition = mRecyclerView.getChildLayoutPosition(firstVisibleView);
-            int visibleRange = mRecyclerView.getChildCount();
-            int lastVisiblePosition = firstVisiblePosition + visibleRange;
+            int firstVisibleItemPosition = mRecyclerView.getChildLayoutPosition(firstVisibleView);
+            int childrenCount = mRecyclerView.getChildCount();
+            int lastVisibleItemPosition = firstVisibleItemPosition + childrenCount;
             int itemCount = mRecyclerView.getAdapter().getItemCount();
             int position;
-            if (firstVisiblePosition == 0) {
+            if (firstVisibleItemPosition == 0) {
                 position = 0;
             }
-            else if (lastVisiblePosition == itemCount) {
+            else if (lastVisibleItemPosition == itemCount) {
                 position = itemCount;
             }
             else {
-                position = (int) (((float) firstVisiblePosition / (((float) itemCount - (float) visibleRange))) * (float) itemCount);
+                position = (int) (((float) firstVisibleItemPosition / (((float) itemCount - (float) childrenCount))) * (float) itemCount);
             }
             float proportion = (float) position / (float) itemCount;
             setBubbleAndHandlePosition(mHeight * proportion);
         }
     }
 
-    public interface BubbleTextGetter {
-        String getTextToShowInBubble(int pos);
+    public interface TextGetter {
+        String getText(int pos);
     }
 }

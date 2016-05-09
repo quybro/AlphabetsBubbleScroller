@@ -38,7 +38,7 @@ public class BubbleAdapter extends BubbleScrollerAdapter<BubbleAdapter.ItemHolde
     }
 
     @Override
-    public String getTextToShowInBubble(int pos) {
+    public String getText(int pos) {
         return mNames.get(pos).substring(0, 1);
     }
 

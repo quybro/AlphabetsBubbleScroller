@@ -1,7 +1,7 @@
 # BubbleScroller
 A layout with `RecyclerView` and fast alphabet scroller
 ![scrolling.png](images/scrolling.png)
-![normal.png](images/scrolling.png)
+![normal.png](images/normal.png)
 
 # Getting started
 
